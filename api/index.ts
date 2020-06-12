@@ -10,6 +10,13 @@ export default function(_req: NowRequest, res: NowResponse) {
   const canvas = createCanvas(600, 315)
   const context = canvas.getContext('2d')
 
+  const canvasWidth = 1200;
+  const canvasHeight = 630;
+  const backgroundColor = "#d3ffb1";
+
+  context.fillStyle = backgroundColor;
+  context.fillRect(0, 0, canvasWidth, canvasHeight)
+
   context.font = '15px rounded-mplus-1p-medium'
   context.fillStyle = '#424242'
   context.fillText('hello', 100, 100)
