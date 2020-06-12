@@ -1,6 +1,6 @@
 import * as path from 'path'
 import { NowRequest, NowResponse } from '@now/node'
-import {createCanvas, registerFont } from 'canvas'
+import {createCanvas, registerFont, loadImage } from 'canvas'
 import { CanvasRenderingContext2D } from 'canvas/types'
 
 type Params = {
@@ -29,13 +29,15 @@ const splitByMeasureWidth = (str: string, maxWidth: number, context: CanvasRende
   return lines
 }
 
-const generateOgpImage = (params: Params): Buffer => {
+const generateOgpImage = async (params: Params): Promise<Buffer> => {
   const CANVAS_WIDTH = 1200
   const CANVAS_HEIGHT = 630
-  const BACKGROUND_COLOR = "#ffffff"
+  const BACKGROUND_IMAGE_PATH = path.join(__dirname, '..', 'images', 'background.png')
   const TITLE_COLOR = "#000000"
-  const TITLE_SIZE = 64
+  const TITLE_SIZE = 68
   const TITLE_LINE_MARGIN_SIZE = 16
+  const TITLE_MARGIN_X = 32
+  const TITLE_MARGIN_TOP_MINUS = 10
   const FONT_FAMILY = 'rounded-mplus-1p-medium'
   const FONT_PATH = path.join(__dirname, '..', 'fonts', 'rounded-mplus-1p-medium.ttf')
 
@@ -44,14 +46,14 @@ const generateOgpImage = (params: Params): Buffer => {
   const context = canvas.getContext('2d')
 
   // Draw background
-  context.fillStyle = BACKGROUND_COLOR
-  context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+  const backgroundImage = await loadImage(BACKGROUND_IMAGE_PATH)
+  context.drawImage(backgroundImage, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
   // Draw title at center
   context.font = `${TITLE_SIZE}px ${FONT_FAMILY}`
   context.fillStyle = TITLE_COLOR
-  const titleLines: string[] = splitByMeasureWidth(params.title, CANVAS_WIDTH, context)
-  let lineY: number = CANVAS_HEIGHT/2 - (TITLE_SIZE+TITLE_LINE_MARGIN_SIZE)/2 * (titleLines.length - 1)
+  const titleLines: string[] = splitByMeasureWidth(params.title, CANVAS_WIDTH - TITLE_MARGIN_X, context)
+  let lineY: number = CANVAS_HEIGHT/2 - (TITLE_SIZE+TITLE_LINE_MARGIN_SIZE)/2 * (titleLines.length - 1) - TITLE_MARGIN_TOP_MINUS
   titleLines.forEach((line: string) => {
     const textWidth: number = context.measureText(line).width
     context.fillText(line, (CANVAS_WIDTH - textWidth)/2, lineY)
@@ -61,10 +63,10 @@ const generateOgpImage = (params: Params): Buffer => {
   return canvas.toBuffer()
 }
 
-export default function(req: NowRequest, res: NowResponse) {
+export default async function(req: NowRequest, res: NowResponse) {
   const params: Params = getParams(req)
 
-  const imageBinary: Buffer = generateOgpImage(params)
+  const imageBinary: Buffer = await generateOgpImage(params)
 
   res.writeHead(200, {
     'Content-Type': 'image/png',
