@@ -1,31 +1,51 @@
 import * as path from 'path'
 import { NowRequest, NowResponse } from '@now/node'
-const { createCanvas, registerFont } = require('canvas')
+import {createCanvas, registerFont} from 'canvas'
 
-export default function(_req: NowRequest, res: NowResponse) {
-  registerFont(path.join(__dirname, '..', 'fonts', 'rounded-mplus-1p-medium.ttf'), {
-    family: 'rounded-mplus-1p-medium'
-  })
+type Params = {
+  title: string
+}
 
-  const canvas = createCanvas(600, 315)
+const getParams = (req: NowRequest): Params => {
+  const title: string = req.query.title as string
+  return {
+    title
+  }
+}
+
+const generateOgpImage = (params: Params): Buffer => {
+  const CANVAS_WIDTH = 1200;
+  const CANVAS_HEIGHT = 630;
+  const BACKGROUND_COLOR = "#ffffff";
+  const TITLE_COLOR = "#000000";
+  const TITLE_SIZE = 64
+  const FONT_FAMILY = 'rounded-mplus-1p-medium'
+  const FONT_PATH = path.join(__dirname, '..', 'fonts', 'rounded-mplus-1p-medium.ttf')
+
+  registerFont(FONT_PATH, { family: FONT_FAMILY })
+  const canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT)
   const context = canvas.getContext('2d')
 
-  const canvasWidth = 1200;
-  const canvasHeight = 630;
-  const backgroundColor = "#d3ffb1";
+  // Draw background
+  context.fillStyle = BACKGROUND_COLOR;
+  context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
-  context.fillStyle = backgroundColor;
-  context.fillRect(0, 0, canvasWidth, canvasHeight)
+  // Draw title at center
+  context.font = `${TITLE_SIZE}px ${FONT_FAMILY}`
+  context.fillStyle = TITLE_COLOR
+  const textWidth:number = context.measureText(params.title).width
+  context.fillText(params.title, (CANVAS_WIDTH - textWidth)/2, CANVAS_HEIGHT/2)
 
-  context.font = '15px rounded-mplus-1p-medium'
-  context.fillStyle = '#424242'
-  context.fillText('hello', 100, 100)
+  return canvas.toBuffer()
+}
 
-  const image = canvas.toBuffer()
+export default function(req: NowRequest, res: NowResponse) {
+  const params: Params = getParams(req)
+  const imageBinary: Buffer = generateOgpImage(params)
 
   res.writeHead(200, {
     'Content-Type': 'image/png',
-    'Content-Length': image.length
+    'Content-Length': imageBinary.length
   })
-  res.end(image, 'binary')
+  res.end(imageBinary, 'binary')
 }
