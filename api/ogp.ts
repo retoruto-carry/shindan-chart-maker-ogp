@@ -3,7 +3,7 @@ import { NowRequest, NowResponse } from '@now/node'
 const { createCanvas, registerFont } = require('canvas')
 
 export default function(_req: NowRequest, res: NowResponse) {
-  registerFont(path.join('fonts', 'rounded-mplus-1p-medium.ttf'), {
+  registerFont(path.join(__dirname, '..', 'fonts', 'rounded-mplus-1p-medium.ttf'), {
     family: 'rounded-mplus-1p-medium'
   })
 
