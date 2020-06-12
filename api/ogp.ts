@@ -37,7 +37,6 @@ const generateOgpImage = async (params: Params): Promise<Buffer> => {
   const TITLE_SIZE = 68
   const TITLE_LINE_MARGIN_SIZE = 16
   const TITLE_MARGIN_X = 32
-  const TITLE_MARGIN_TOP_MINUS = 14
   const FONT_FAMILY = 'rounded-mplus-1p-medium'
   const FONT_PATH = path.join(__dirname, '..', 'fonts', 'rounded-mplus-1p-medium.ttf')
 
@@ -53,7 +52,7 @@ const generateOgpImage = async (params: Params): Promise<Buffer> => {
   context.font = `${TITLE_SIZE}px ${FONT_FAMILY}`
   context.fillStyle = TITLE_COLOR
   const titleLines: string[] = splitByMeasureWidth(params.title, CANVAS_WIDTH - TITLE_MARGIN_X, context)
-  let lineY: number = CANVAS_HEIGHT/2 - (TITLE_SIZE+TITLE_LINE_MARGIN_SIZE)/2 * (titleLines.length - 1) - TITLE_MARGIN_TOP_MINUS
+  let lineY: number = CANVAS_HEIGHT/2 - (TITLE_SIZE+TITLE_LINE_MARGIN_SIZE)/2 * (titleLines.length - 1)
   titleLines.forEach((line: string) => {
     const textWidth: number = context.measureText(line).width
     context.fillText(line, (CANVAS_WIDTH - textWidth)/2, lineY)
