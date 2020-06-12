@@ -36,7 +36,7 @@ const generateOgpImage = async (params: Params): Promise<Buffer> => {
   const TITLE_COLOR = "#000000"
   const TITLE_SIZE = 68
   const TITLE_LINE_MARGIN_SIZE = 16
-  const TITLE_MARGIN_X = 32
+  const TITLE_MARGIN_X = 68
   const FONT_FAMILY = 'rounded-mplus-1p-medium'
   const FONT_PATH = path.join(__dirname, '..', 'fonts', 'rounded-mplus-1p-medium.ttf')
 
